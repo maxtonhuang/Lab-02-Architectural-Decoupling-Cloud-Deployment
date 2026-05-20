@@ -19,42 +19,6 @@ if "view_mode" not in st.session_state:
 if "selected_summary_id" not in st.session_state:
     st.session_state.selected_summary_id = None
 
-# --- SIDEBAR COMPONENT ---
-with st.sidebar:
-    st.title("📁 Navigation & History")
-
-    # Primary action to reset UI to standard uploader
-    if st.button("➕ Analyze New Reviews", use_container_width=True, type="primary"):
-        st.session_state.view_mode = "new_analysis"
-        st.session_state.selected_summary_id = None
-        st.rerun()
-
-    st.divider()
-    st.subheader("📜 Filter Past Summaries")
-
-    # Category expander folders
-    categories = {
-        "🟢 Good (8-10)": "Good",
-        "🟡 Average (4-7)": "Average",
-        "🔴 Bad (0-3)": "Bad",
-    }
-
-    for label, db_category in categories.items():
-        with st.expander(label):
-            records = get_summaries_by_category(db_category)
-            if not records:
-                st.caption("No historical records found.")
-            for rec_id, filename, timestamp in records:
-                # Format time string for cleaner UI listings
-                time_str = datetime.fromisoformat(timestamp).strftime("%b %d, %H:%M")
-                btn_label = f"📄 {filename} ({time_str})"
-
-                # If a user clicks a historical record button, switch the view state
-                if st.button(btn_label, key=f"rec_{rec_id}", use_container_width=True):
-                    st.session_state.view_mode = "view_past"
-                    st.session_state.selected_summary_id = rec_id
-                    st.rerun()
-
 # --- MAIN CONTROLLER ARENA ---
 
 # MODE 1: View Past Record History
@@ -134,3 +98,39 @@ else:
 
         except Exception as file_err:
             st.error(f"❌ Structural Read Error: {file_err}")
+
+# --- SIDEBAR COMPONENT ---
+with st.sidebar:
+    st.title("📁 Navigation & History")
+
+    # Primary action to reset UI to standard uploader
+    if st.button("➕ Analyze New Reviews", use_container_width=True, type="primary"):
+        st.session_state.view_mode = "new_analysis"
+        st.session_state.selected_summary_id = None
+        st.rerun()
+
+    st.divider()
+    st.subheader("📜 Filter Past Summaries")
+
+    # Category expander folders
+    categories = {
+        "🟢 Good (8-10)": "Good",
+        "🟡 Average (4-7)": "Average",
+        "🔴 Bad (0-3)": "Bad",
+    }
+
+    for label, db_category in categories.items():
+        with st.expander(label):
+            records = get_summaries_by_category(db_category)
+            if not records:
+                st.caption("No historical records found.")
+            for rec_id, filename, timestamp in records:
+                # Format time string for cleaner UI listings
+                time_str = datetime.fromisoformat(timestamp).strftime("%b %d, %H:%M")
+                btn_label = f"📄 {filename} ({time_str})"
+
+                # If a user clicks a historical record button, switch the view state
+                if st.button(btn_label, key=f"rec_{rec_id}", use_container_width=True):
+                    st.session_state.view_mode = "view_past"
+                    st.session_state.selected_summary_id = rec_id
+                    st.rerun()
